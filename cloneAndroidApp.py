@@ -1,24 +1,46 @@
 #!/usr/bin/python
 
 import sys
+import pprint
 import cloningProcess
+import processingConfigationFile
+
+# from ConfigParser import SafeConfigParser
+
+# import findManifestFile
 
 if __name__ == '__main__':
 
-    if len(sys.argv) != 4:
-        print "Usage: python {} [Android App Dir. SRC] [Number of Copies] [Android App Dir. DST]".format(sys.argv[0])
+    if len(sys.argv) != 3:
+        print "Usage: python {} [Android App Dir. SRC] [Configuration File]".format(sys.argv[0])
         sys.exit(1)
-    elif not sys.argv[2].isdigit():
-        print "Please enter a valid number of copies"
+    elif ".ini" not in sys.argv[2]:
+        print "Usage: python {} [Android App Dir. SRC] [Configuration File.ini]".format(sys.argv[0],
+                                                                                        sys.argv[2])
         sys.exit(1)
 
-    sys.argv[3] = sys.argv[3].translate(None, '/')
+    conf_file_obj = processingConfigationFile.ConfigurationFileProcess()
+    data_conf_file, source_file = conf_file_obj.process_conf_file(sys.argv[2])
+
+    # pprint.pprint(data_conf_file)
+
+    # ToDo When I need to process the data from the conf file here is the code
+    # for name, value in parser_obj.items(section_name):
+    # print '  %s = %s' % (name, value)
+
+    # sys.argv[3] = sys.argv[3].translate(None, '/')
+
+    app_names_list = data_conf_file.keys()
+    number_of_clones = len(app_names_list)
 
     process_obj = cloningProcess.DuplicationProcess()  # Instantiate object of the DuplicationProcess class
 
-    output_dictionary = {}
+    cloning_dictionary = {}
+    for i in range(int(number_of_clones)):
+        cloning_dictionary[app_names_list[i]] = process_obj.clone(source_file, app_names_list[i])
 
-    for i in range(int(sys.argv[2])):
-        output_dictionary[sys.argv[3] + '{}'.format(i)] = process_obj.clone(sys.argv[1], sys.argv[3] + '{}'.format(i))
+    print cloning_dictionary
 
-    print output_dictionary
+    exit(0)
+
+    # process_obj = cloningProcess.DuplicationProcess()  # Instantiate object of the DuplicationProcess class
