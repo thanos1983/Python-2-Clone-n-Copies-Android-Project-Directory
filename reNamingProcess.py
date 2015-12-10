@@ -27,15 +27,16 @@ class RenamingProcess(object):
         return result
 
     def str_replace(self, file_input, str_old,  str_new):
+        print "File Input {}" .format(file_input)
         for line in fileinput.input(file_input, inplace=True):
             print "Line: {}" .format(line)
             print line.replace(str_old, str_new)
 
-    def modification_process(self, source_file, app_section_name, data_conf_file):
+    def modification_process(self, app_section_name, data_conf_file):
         working_directory = os.getcwd()
 
         # Search for 'manifests' file
-        find_manifests = "find " + working_directory + "/" + source_file + "/ -iname manifests"
+        find_manifests = "find " + working_directory + "/" + app_section_name + "/ -iname manifests"
         manifests_path = self.find_name(find_manifests)
 
         # Search for 'AndroidManifest.xml' file
@@ -52,7 +53,7 @@ class RenamingProcess(object):
         key, package_name = data_conf_file[app_section_name][0]
 
         # Replace package name in 'AndroidManifest.xml' file
-        self.str_replace(manifest_xml, key, package_name)
+        #self.str_replace(manifest_xml, key, package_name)
 
 
 
