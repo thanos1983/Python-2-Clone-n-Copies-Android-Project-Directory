@@ -14,7 +14,6 @@ class DuplicationProcess(object):
 
         :rtype: object.output String with success or Error
         """
-
         self.output = output
 
     def clone(self, source_file, target_file):

@@ -30,13 +30,9 @@ if __name__ == '__main__':
     cloning_dictionary = {}
     for i in range(int(number_of_clones)):
         cloning_dictionary[app_names_list[i]] = cloning_obj.clone(source_file, app_names_list[i])
+        renaming = renaming_obj.modification_process(source_file)
 
-    print cloning_dictionary
+    # print cloning_dictionary
+    # print renaming
 
     exit(0)
-
-    # ToDo When I need to process the data from the conf file here is the code
-    # for name, value in parser_obj.items(section_name):
-    # print '  %s = %s' % (name, value)
-
-    # sys.argv[3] = sys.argv[3].translate(None, '/')
