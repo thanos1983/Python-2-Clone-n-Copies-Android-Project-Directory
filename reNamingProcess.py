@@ -3,6 +3,7 @@
 import os
 import fileinput
 import subprocess
+import pprint
 
 
 class RenamingProcess(object):
@@ -24,13 +25,19 @@ class RenamingProcess(object):
         self.manifests_file = result
         return result
 
-    def in_place_editing(self, input_file, text_to_search, text_to_replace):
-        with open(input_file, "wt") as fout:
+    @staticmethod
+    def in_place(file_input, str_old, str_new):
+        for line in fileinput.input(file_input, inplace=True):
+            print line.replace(str_old, str_new)
+
+    """def in_place_editing(input_file, text_to_search, text_to_replace):
+        with open(, "wt") as fout:
             with open("Stud.txt", "rt") as fin:
                 for line in fin:
-                    fout.write(line.replace(text_to_search, text_to_replace))
+                    print "I found line: {}" .format()
+                    #fout.write(line.replace(text_to_search, text_to_replace))"""
 
-    def modification_process(self, source_file):
+    def modification_process(self, source_file, app_section_name, data_conf_file):
         working_directory = os.getcwd()
 
         # Search for 'manifests' file
@@ -48,11 +55,12 @@ class RenamingProcess(object):
         manifest_xml = manifest_xml.rstrip('\r\n')
 
         # Retrieve package PackageName from '*.ini' file
-        # ToDo When I need to process the data from the conf file here is the code
-        # for name, value in parser_obj.items(section_name):
-        # print '  %s = %s' % (name, value)
+        key, package_name = data_conf_file[app_section_name][0]
 
         # Replace package name in 'AndroidManifest.xml' file
+        in_place(manifest_xml, key, package_name)
 
-        print manifest_xml
+
+
+        # print manifest_xml
         # return self.output

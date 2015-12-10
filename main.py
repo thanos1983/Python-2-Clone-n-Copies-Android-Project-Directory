@@ -30,7 +30,7 @@ if __name__ == '__main__':
     cloning_dictionary = {}
     for i in range(int(number_of_clones)):
         cloning_dictionary[app_names_list[i]] = cloning_obj.clone(source_file, app_names_list[i])
-        renaming = renaming_obj.modification_process(source_file)
+        renaming = renaming_obj.modification_process(source_file, app_names_list[i], data_conf_file)
 
     # print cloning_dictionary
     # print renaming
