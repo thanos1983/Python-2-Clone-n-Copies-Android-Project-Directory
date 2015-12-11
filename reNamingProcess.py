@@ -71,7 +71,7 @@ class RenamingProcess(object):
     def str_replace(self, file_input, str_old, str_new):
         with open(file_input, "r") as fr:
             xml_data = fr.read()
-            xml_data = re.sub(r"{}=\"(.+?)\"".format(str_old), str_new, xml_data)
+            xml_data = re.sub(r"{}".format(str_old), str_new, xml_data)
         fr.closed
 
         with open(file_input, "w") as fw:
@@ -87,6 +87,9 @@ class RenamingProcess(object):
         # Retrieve package PackageName from '*.ini' file
         key, new_package = data_conf_file[app_section_name][0]
 
+        # Adding equal sign
+        key = + '=' + '\"(.+?)\"'
+
         # Replace package name in 'AndroidManifest.xml' file
         self.str_replace(android_manifest_xml, key, new_package)
 
@@ -94,14 +97,21 @@ class RenamingProcess(object):
         key, new_icon = data_conf_file[app_section_name][1]
 
         # Adding Android prefix
-        key = 'android:' + key
+        key = 'android:' + key + '=' + '\"(.+?)\"'
 
         # Replace Android icon name in 'AndroidManifest.xml' file
         self.str_replace(android_manifest_xml, key, new_icon)
 
         # Replace Android Label name in 'strings.xml' file
-        print self.get_strings_xml(app_section_name)
+        strings_xml = self.get_strings_xml(app_section_name)
+
+        # Retrieve label android:label from '*.ini' file
+        key, new_label = data_conf_file[app_section_name][2]
+
+        key = '<string name=\"app_name\">.*</string>'
         # self.str_replace(android_manifest_xml, key, new_icon)
+        # print self.str_replace(strings_xml, key, new_label)
+        print self.str_replace(strings_xml, key, new_label)
         exit(1)
 
         # print manifest_xml
