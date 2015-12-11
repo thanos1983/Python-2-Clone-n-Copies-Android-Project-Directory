@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import os
-import fileinput
+import re
 import subprocess
 import pprint
 
@@ -53,22 +53,22 @@ class RenamingProcess(object):
         self.android_manifests_file = manifest_xml
         return self.android_manifests_file
 
-    def str_replace(self, file_input, keyword, str_new):
-        for line in fileinput.input(file_input, inplace=True):
-            line = line.rstrip('\r\n')
-            print line.replace(keyword, str_new)
-        fileinput.close()
-        self.replace_string = True
+    def str_replace(self, file_input, str_old, str_new):
+        with open(file_input, 'r') as my_file:
+            xml_data = my_file.read()
+            xml_data = re.sub(r'{}=\"(.+?)\"'.format(str_old), str_new, xml_data)
+        my_file.closed
+        self.replace_string = xml_data
         return self.replace_string
 
     def modification_process(self, app_section_name, data_conf_file):
         android_manifest_xml = self.get_android_manifest_xml(app_section_name)
 
         # Retrieve package PackageName from '*.ini' file
-        key, package_name = data_conf_file[app_section_name][0]
+        key, package_new_name = data_conf_file[app_section_name][0]
 
         # Replace package name in 'AndroidManifest.xml' file
-        replace_str_return = self.str_replace(android_manifest_xml, key, package_name)
+        replace_str_return = self.str_replace(android_manifest_xml, key, package_new_name)
 
         print "String replace return: {}" .format(replace_str_return)
         exit(1)
