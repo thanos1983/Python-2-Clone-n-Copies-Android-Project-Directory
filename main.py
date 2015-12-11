@@ -4,7 +4,7 @@ import sys
 import pprint
 import cloningProcess
 import reNamingProcess
-import configationFileProcess
+import configurationFileProcess
 
 if __name__ == '__main__':
 
@@ -16,7 +16,7 @@ if __name__ == '__main__':
                                                                                         sys.argv[2])
         sys.exit(1)
 
-    conf_file_obj = configationFileProcess.ConfigurationFileProcess()
+    conf_file_obj = configurationFileProcess.ConfigurationFileProcess()
     data_conf_file, source_file = conf_file_obj.process_conf_file(sys.argv[2])
 
     # pprint.pprint(data_conf_file)

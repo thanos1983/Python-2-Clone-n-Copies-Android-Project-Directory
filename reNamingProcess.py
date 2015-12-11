@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-import re
 import os
 import fileinput
 import subprocess
@@ -12,7 +11,12 @@ class RenamingProcess(object):
         and also the application name. e.g. application android:icon="@drawable/icon" android:label="new name"
         Secondly modifying all renaming all instances of main package."""
 
-    def __init__(self, output=None, manifests_file=None, modified_file=None):
+    def __init__(self,
+                 output=None,
+                 modified_file=None,
+                 manifests_file=None,
+                 replace_string=None,
+                 android_manifests_file=None):
         """
 
         :rtype: object.output String with success or Error
@@ -20,19 +24,15 @@ class RenamingProcess(object):
         self.output = output
         self.modified_file = modified_file
         self.manifests_file = manifests_file
+        self.replace_string = replace_string
+        self.android_manifests_file = android_manifests_file
 
     def find_name(self, cmd):
         result = subprocess.check_output(cmd, shell=True)
         self.manifests_file = result
         return result
 
-    def str_replace(self, file_input, str_old,  str_new):
-        print "File Input {}" .format(file_input)
-        for line in fileinput.input(file_input, inplace=True):
-            print "Line: {}" .format(line)
-            print line.replace(str_old, str_new)
-
-    def modification_process(self, app_section_name, data_conf_file):
+    def get_android_manifest_xml(self, app_section_name):
         working_directory = os.getcwd()
 
         # Search for 'manifests' file
@@ -41,6 +41,7 @@ class RenamingProcess(object):
 
         # Search for 'AndroidManifest.xml' file
         str_manifests_path = str(manifests_path)
+
         # Strip new line character
         str_manifests_path = str_manifests_path.rstrip('\r\n')
         find_manifest_xml = "find " + str_manifests_path + "/ -iname 'AndroidManifest.xml'"
@@ -49,13 +50,28 @@ class RenamingProcess(object):
         # Strip new line character
         manifest_xml = manifest_xml.rstrip('\r\n')
 
+        self.android_manifests_file = manifest_xml
+        return self.android_manifests_file
+
+    def str_replace(self, file_input, keyword, str_new):
+        for line in fileinput.input(file_input, inplace=True):
+            line = line.rstrip('\r\n')
+            print line.replace(keyword, str_new)
+        fileinput.close()
+        self.replace_string = True
+        return self.replace_string
+
+    def modification_process(self, app_section_name, data_conf_file):
+        android_manifest_xml = self.get_android_manifest_xml(app_section_name)
+
         # Retrieve package PackageName from '*.ini' file
         key, package_name = data_conf_file[app_section_name][0]
 
         # Replace package name in 'AndroidManifest.xml' file
-        #self.str_replace(manifest_xml, key, package_name)
+        replace_str_return = self.str_replace(android_manifest_xml, key, package_name)
 
-
+        print "String replace return: {}" .format(replace_str_return)
+        exit(1)
 
         # print manifest_xml
         # return self.output
