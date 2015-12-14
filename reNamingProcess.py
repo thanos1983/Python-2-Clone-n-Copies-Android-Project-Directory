@@ -88,7 +88,7 @@ class RenamingProcess(object):
         key, new_package = data_conf_file[app_section_name][0]
 
         # Adding equal sign
-        key = + '=' + '\"(.+?)\"'
+        key += '=' + '\"(.+?)\"'
 
         # Replace package name in 'AndroidManifest.xml' file
         self.str_replace(android_manifest_xml, key, new_package)
@@ -111,8 +111,6 @@ class RenamingProcess(object):
         key = '<string name=\"app_name\">.*</string>'
         # self.str_replace(android_manifest_xml, key, new_icon)
         # print self.str_replace(strings_xml, key, new_label)
-        print self.str_replace(strings_xml, key, new_label)
-        exit(1)
+        self.output = self.str_replace(strings_xml, key, new_label)
 
-        # print manifest_xml
-        # return self.output
+        return self.output
