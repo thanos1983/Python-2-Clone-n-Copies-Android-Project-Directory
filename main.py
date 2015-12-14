@@ -2,6 +2,7 @@
 
 import sys
 import pprint
+import dirCompare
 import cloningProcess
 import reNamingProcess
 import configurationFileProcess
@@ -15,6 +16,10 @@ if __name__ == '__main__':
         print "Usage: python {} [Android App Dir. SRC] [Configuration File.ini]".format(sys.argv[0],
                                                                                         sys.argv[2])
         sys.exit(1)
+
+    """file_comp_obj = dirCompare.DirectoryComparisonProcess()  # Instantiate obj. of the DirectoryComparisonProcess class
+    dir_conf = file_comp_obj.retrieve_dir_diff(sys.argv[0],
+                                               '/Users/thanos/Desktop/cloneAndroidScript/dir2')"""
 
     conf_file_obj = configurationFileProcess.ConfigurationFileProcess()
     data_conf_file, source_file = conf_file_obj.process_conf_file(sys.argv[2])

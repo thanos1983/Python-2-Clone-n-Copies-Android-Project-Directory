@@ -2,8 +2,8 @@
 
 import os
 import re
-import subprocess
 import pprint
+import subprocess
 
 
 class RenamingProcess(object):
@@ -87,7 +87,7 @@ class RenamingProcess(object):
         # Retrieve package PackageName from '*.ini' file
         key, new_package = data_conf_file[app_section_name][0]
 
-        # Adding equal sign
+        # Regex to modify package='com.something.something.etc'
         key += '=' + '\"(.+?)\"'
 
         # Replace package name in 'AndroidManifest.xml' file
@@ -96,7 +96,7 @@ class RenamingProcess(object):
         # Retrieve package PackageName from '*.ini' file
         key, new_icon = data_conf_file[app_section_name][1]
 
-        # Adding Android prefix
+        # Regex to modify android:icon="@mipmap/ic_launcher"
         key = 'android:' + key + '=' + '\"(.+?)\"'
 
         # Replace Android icon name in 'AndroidManifest.xml' file
@@ -108,9 +108,9 @@ class RenamingProcess(object):
         # Retrieve label android:label from '*.ini' file
         key, new_label = data_conf_file[app_section_name][2]
 
+        # Regex to replace app_name label in
         key = '<string name=\"app_name\">.*</string>'
         # self.str_replace(android_manifest_xml, key, new_icon)
-        # print self.str_replace(strings_xml, key, new_label)
         self.output = self.str_replace(strings_xml, key, new_label)
 
         return self.output
