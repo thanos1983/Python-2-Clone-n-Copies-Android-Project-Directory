@@ -1,9 +1,8 @@
 #!/usr/bin/python
 
-import os
-import re
 import pprint
 import subprocess
+import stringManipulation
 
 
 class RenamingProcess(object):
@@ -11,87 +10,45 @@ class RenamingProcess(object):
         and also the application name. e.g. application android:icon="@drawable/icon" android:label="new name"
         Secondly modifying all renaming all instances of main package."""
 
-    def __init__(self,
-                 output=None,
-                 strings_file=None,
-                 modified_file=None,
-                 manifests_dir=None,
-                 replace_string=None,
-                 android_manifests_file=None):
+    def __init__(self, output=None):
+
+        self.output = output
         """
 
         :rtype: object.output String with success or Error
         """
-        self.output = output
-        self.strings_file = strings_file
-        self.modified_file = modified_file
-        self.manifests_dir = manifests_dir
-        self.replace_string = replace_string
-        self.android_manifests_file = android_manifests_file
-
-    def execute_bash_cmd(self, cmd):
-        result = subprocess.check_output(cmd, shell=True)
-        self.manifests_dir = result
-        return self.manifests_dir
-
-    def get_strings_xml(self, app_section):
-        working_directory = os.getcwd()
-
-        # Search for 'strings.xml' file
-        find_strings = "find " + working_directory + "/" + app_section + "/ -name 'strings.xml'"
-        strings_xml_path = self.execute_bash_cmd(find_strings)
-
-        # Strip new line character
-        strings_xml_path = strings_xml_path.rstrip('\r\n')
-
-        self.strings_file = strings_xml_path
-        return self.strings_file
-
-    def get_android_manifest_xml(self, app_section):
-        working_directory = os.getcwd()
-
-        # Search for 'manifests' dir
-        find_manifests = "find " + working_directory + "/" + app_section + "/ -name 'manifests'"
-        manifests_path = self.execute_bash_cmd(find_manifests)
-
-        # Search for 'AndroidManifest.xml' file
-        str_manifests_path = str(manifests_path)
-
-        # Strip new line character
-        str_manifests_path = str_manifests_path.rstrip('\r\n')
-        find_manifest_xml = "find " + str_manifests_path + "/ -name 'AndroidManifest.xml'"
-        manifest_xml = self.execute_bash_cmd(find_manifest_xml)
-
-        # Strip new line character
-        manifest_xml = manifest_xml.rstrip('\r\n')
-
-        self.android_manifests_file = manifest_xml
-        return self.android_manifests_file
-
-    def str_replace(self, file_input, str_old, str_new):
-        with open(file_input, "r") as fr:
-            xml_data = fr.read()
-            xml_data = re.sub(r"{}".format(str_old), str_new, xml_data)
-        fr.closed
-
-        with open(file_input, "w") as fw:
-            fw.write(xml_data)
-        fw.closed
-
-        self.replace_string = xml_data
-        return self.replace_string
 
     def modification_process(self, app_section_name, data_conf_file):
-        android_manifest_xml = self.get_android_manifest_xml(app_section_name)
+        """Modify AndroidManifest.xml file"""
+        # Instantiate object of the StringManipulationProcess class for AndroidManifest.xml
+        manifest_xml_obj = stringManipulation.StringManipulationProcess()
+        android_manifest_xml = manifest_xml_obj.get_android_manifest_xml(app_section_name)
 
         # Retrieve package PackageName from '*.ini' file
         key, new_package = data_conf_file[app_section_name][0]
 
         # Regex to modify package='com.something.something.etc'
-        key += '=' + '\"(.+?)\"'
+        key += '=\"(.*?)\"'
 
-        # Replace package name in 'AndroidManifest.xml' file
-        self.str_replace(android_manifest_xml, key, new_package)
+        # Instantiate object of the StringManipulationProcess class for AndroidManifest.xml
+        regex_xml_obj = stringManipulation.StringManipulationProcess()
+        # Change applicationId to package name in build.gradle
+        regex_package_name = regex_xml_obj.str_regex(android_manifest_xml, key, new_package)
+
+        # Instantiate object of the StringManipulationProcess class
+        replace_package_name_obj = stringManipulation.StringManipulationProcess()
+        # Replace old package name in 'AndroidManifest.xml' file for all occurrences
+        replace_package_name_obj.str_replace(android_manifest_xml, regex_package_name, new_package)
+
+        """Modify build.gradle file"""
+        
+
+
+        # Instantiate object of the StringManipulationProcess class
+        replace_package_build_gradle_obj = stringManipulation.StringManipulationProcess()
+        # Replace old package name in 'AndroidManifest.xml' file for all occurrences
+        replace_package_build_gradle_obj.str_replace(android_manifest_xml, regex_package_name, new_package)
+        exit(1)
 
         # Retrieve package PackageName from '*.ini' file
         key, new_icon = data_conf_file[app_section_name][1]
@@ -111,6 +68,6 @@ class RenamingProcess(object):
         # Regex to replace app_name label in
         key = '<string name=\"app_name\">.*</string>'
         # self.str_replace(android_manifest_xml, key, new_icon)
-        self.output = self.str_replace(strings_xml, key, new_label)
+        #self.output = self.str_replace(strings_xml, key, new_label)
 
         return self.output

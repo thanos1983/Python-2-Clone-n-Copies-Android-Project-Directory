@@ -6,8 +6,7 @@ import StringIO
 
 
 class DirectoryComparisonProcess(object):
-    """This class is used to compare and find difference two directories (dirA, dirB)
-    """
+    """This class is used to compare and find difference two directories (dirA, dirB)."""
 
     def __init__(self, output=None):
         self.output = output
