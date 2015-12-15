@@ -47,8 +47,6 @@ class RenamingProcess(object):
             self.output = True
         else:
             self.output = False
-        print "Self Output: {}" .format(self.output)
-        exit(1)
         return self.output
 
     def retrieve_data_android_manifest_file(self, app_section_name, conf_file):
