@@ -31,6 +31,7 @@ class StringManipulationProcess(object):
 
     def get_android_manifest_xml(self, app_section):
         """
+        :rtype: Return the path of the AndroiManifest.xml file
         :type app_section: Each directory has a different section name to use for each clone
         """
         working_directory = os.getcwd()
