@@ -6,29 +6,57 @@ import stringManipulation
 
 
 class RenamingProcess(object):
-    """This class is for modifying the package name in the AndroidManifest.xml file
-        and also the application name. e.g. application android:icon="@drawable/icon" android:label="new name"
-        Secondly modifying all renaming all instances of main package."""
+    """This class is used to modify the package name in the AndroidManifest.xml file,
+        also the application name. e.g. application android:icon="@drawable/icon" android:label="new name"
+        also modifying the app_name in strings.xml file e.g. <string name="app_name">New Name</string>
+        also modifying all remaining instances of main package."""
 
     def __init__(self,
                  icon=None,
                  gradle=None,
+                 output=None,
+                 strings=None,
                  package=None,
                  file_data=None,
-                 android_manifest_data=None,
-                 android_manifest_file=None):
+                 android_manifest_data=None):
 
         self.icon = icon
         self.gradle = gradle
+        self.output = output
+        self.strings = strings
         self.package = package
         self.file_data = file_data
         self.android_manifest_data = android_manifest_data
 
         """
-        :rtype: object.output String with success or Error
+        :rtype: object.output String with True or False
         """
 
+    def modification_process(self, app_section_name, conf_file):
+        """Modify AndroidManifest.xml, build.gradle and Strings.xml file(s)
+
+        :param conf_file: The file contains all clones data that we want to modify (package, icon, app_name)
+        :param app_section_name: Each directory has a different section name to use for each clone
+        """
+
+        return_package_name = self.modify_package_name(app_section_name, conf_file)
+        return_android_icon = self.modification_android_icon(app_section_name, conf_file)
+        return_strings_xml = self.modification_strings_xml_file(app_section_name, conf_file)
+
+        if return_package_name is True and return_android_icon is True and return_strings_xml is True:
+            self.output = True
+        else:
+            self.output = False
+        print "Self Output: {}" .format(self.output)
+        exit(1)
+        return self.output
+
     def retrieve_data_android_manifest_file(self, app_section_name, conf_file):
+        """Extract all the data from the AndroidManifest.xml file e.g. 'package="com.something.something.etc"'
+
+        :type app_section_name: string
+        :type conf_file: dictionary with lists
+        """
         manifest_xml_obj = stringManipulation.StringManipulationProcess()
         android_manifest_xml_file = manifest_xml_obj.get_android_manifest_xml(app_section_name)
 
@@ -86,21 +114,13 @@ class RenamingProcess(object):
         self.gradle = replace_package_build_gradle_obj.str_replace(build_gradle_file,
                                                                    old_package_name,
                                                                    new_package_name)
-        print "Return: {}".format(self.gradle)
         return self.gradle
 
-    def modification_process(self, app_section_name, conf_file):
-        """Modify AndroidManifest.xml, build.gradle and Strings.xml file(s)
-
+    def modification_android_icon(self, app_section_name, conf_file):
+        """Modifying android:icon="@mipmap/ic_launcher" to the desired icon from configuration file
         :param conf_file: The file contains all clones data that we want to modify (package, icon, app_name)
         :param app_section_name: Each directory has a different section name to use for each clone
         """
-
-        self.modify_package_name(app_section_name, conf_file)
-        exit(1)
-
-    def modification_android_icon(self, app_section_name, ):
-        """Modifying android:icon="@mipmap/ic_launcher" to the desired icon from configuration file"""
         manifest_xml_obj = stringManipulation.StringManipulationProcess()
         android_manifest_xml_file = manifest_xml_obj.get_android_manifest_xml(app_section_name)
 
@@ -117,10 +137,14 @@ class RenamingProcess(object):
         # Instantiate object of the StringManipulationProcess class
         android_icon_obj = stringManipulation.StringManipulationProcess()
         # Replace Android icon name in 'AndroidManifest.xml' file
-        android_icon_obj.str_replace(android_manifest_xml_file, regex_icon_name, new_icon)
-        return
+        self.icon = android_icon_obj.str_replace(android_manifest_xml_file, regex_icon_name, new_icon)
+        return self.icon
 
-        """Modifying 'Strings.xml' file for the app_name attribute"""
+    def modification_strings_xml_file(self, app_section_name, conf_file):
+        """Modifying 'Strings.xml' file for the app_name attribute
+
+        :rtype: self.strings returns True or False depends upon the process
+        """
         # Instantiate object of the StringManipulationProcess class
         strings_xml_obj = stringManipulation.StringManipulationProcess()
         # Replace Android Label name in 'strings.xml' file
@@ -140,6 +164,6 @@ class RenamingProcess(object):
         # Instantiate object of the StringManipulationProcess class
         replace_app_name_obj = stringManipulation.StringManipulationProcess()
         # Replace old app_name in 'Strings.xml' file
-        replace_app_name_obj.str_replace(strings_xml, regex_app_name, new_label)
 
-        return self.output
+        self.strings = replace_app_name_obj.str_replace(strings_xml, regex_app_name, new_label)
+        return self.strings

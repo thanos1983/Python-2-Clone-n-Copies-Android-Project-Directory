@@ -79,18 +79,17 @@ class StringManipulationProcess(object):
         :param file_input: File input to use regex
         :rtype: self.regex_string returns string matched based on regex
         """
-        print "File Input: {}\nRegex Key: {}" .format(file_input, regex_key)
         with open(file_input, "r") as fr:
             str_data = fr.read()
             str_line = re.findall(r'{}'.format(regex_key), str_data)
         fr.closed
         self.regex_string = str_line[0]
-        print "Regex String: {}" .format(self.regex_string)
         return self.regex_string
 
     def str_replace(self, file_input, str_old, str_new):
         # Replace all occurrences of string where is matched
         """
+        :rtype: self.replace_string returs True or False if the process found strings to replace
         :param str_new: Replace all occurrences found from str_old string
         :param str_old: Find all occurrences based on input string
         :type file_input: File input to use to replace string
