@@ -33,7 +33,8 @@ class RenamingProcess(object):
         """
 
     def modification_process(self, app_section_name, conf_file):
-        """Modify AndroidManifest.xml, build.gradle and Strings.xml file(s)
+        """
+        Modify AndroidManifest.xml, build.gradle and Strings.xml file(s)
 
         :param conf_file: The file contains all clones data that we want to modify (package, icon, app_name)
         :param app_section_name: Each directory has a different section name to use for each clone
@@ -43,6 +44,13 @@ class RenamingProcess(object):
         return_android_icon = self.modification_android_icon(app_section_name, conf_file)
         return_strings_xml = self.modification_strings_xml_file(app_section_name, conf_file)
 
+        # ToDo: After completing all the processes initialize "./gradlew build" and capture output as a self.output
+
+        gradlew_build_obj = stringManipulation.StringManipulationProcess()
+        gradlew_build_std_output = gradlew_build_obj.compile_and_build_project(app_section_name)
+
+        pprint.pprint(gradlew_build_std_output)
+
         if return_package_name is True and return_android_icon is True and return_strings_xml is True:
             self.output = True
         else:
@@ -50,7 +58,8 @@ class RenamingProcess(object):
         return self.output
 
     def retrieve_data_android_manifest_file(self, app_section_name, conf_file):
-        """Extract all the data from the AndroidManifest.xml file e.g. 'package="com.something.something.etc"'
+        """
+        Extract all the data from the AndroidManifest.xml file e.g. 'package="com.something.something.etc"'
 
         :type app_section_name: string
         :type conf_file: dictionary with lists
@@ -67,34 +76,44 @@ class RenamingProcess(object):
 
         # Instantiate object of the StringManipulationProcess class for file input
         regex_xml_obj = stringManipulation.StringManipulationProcess()
+
         # Retrieve matched string based on file and regex input
         old_package_name = regex_xml_obj.str_regex(android_manifest_xml_file, regex_key)
+
         self.android_manifest_data = android_manifest_xml_file, old_package_name, new_package_name
         return self.android_manifest_data
 
     def modify_package_name(self, app_section_name, conf_file):
-        """Modifying package="com.something.etc" to the desired name from configuration file
+        """
+        Modifying package="com.something.etc" to the desired name from configuration file
 
         :param conf_file: The file contains all clones data that we want to modify (package, icon, app_name)
         :param app_section_name: Each directory has a different section name to use for each clone
         """
-        android_manifest_xml_package_name = self.retrieve_data_android_manifest_file(app_section_name, conf_file)
+        android_manifest_xml_package_name_old_new = self.retrieve_data_android_manifest_file(app_section_name,
+                                                                                             conf_file)
+
+        # Instantiate object of the StringManipulationProcess class
+        list_package_name_files_obj = stringManipulation.StringManipulationProcess()
+        list_package_name_files = list_package_name_files_obj.get_list_of_package_name_files(app_section_name)
 
         # Instantiate object of the StringManipulationProcess class
         replace_package_name_obj = stringManipulation.StringManipulationProcess()
-        # Replace old package name in 'AndroidManifest.xml' file for all occurrences
-        self.package = replace_package_name_obj.str_replace(android_manifest_xml_package_name[0],
-                                                            android_manifest_xml_package_name[1],
-                                                            android_manifest_xml_package_name[2])
+        # Replace old package name in all file(s) for all occurrences
+        for file_element in list_package_name_files:
+            self.package = replace_package_name_obj.str_replace(file_element,
+                                                                android_manifest_xml_package_name_old_new[1],
+                                                                android_manifest_xml_package_name_old_new[2])
 
         self.modify_gradle_file(app_section_name,
-                                android_manifest_xml_package_name[1],
-                                android_manifest_xml_package_name[2])
+                                android_manifest_xml_package_name_old_new[1],
+                                android_manifest_xml_package_name_old_new[2])
 
         return self.package
 
     def modify_gradle_file(self, app_section_name, old_package_name, new_package_name):
-        """Modify build.gradle file
+        """
+        Modify build.gradle file
 
         :param new_package_name: Name retrieved from configurationFile.ini based on section
         :param old_package_name: Name retrieved initially from AndroidManifest.xml file
@@ -115,7 +134,9 @@ class RenamingProcess(object):
         return self.gradle
 
     def modification_android_icon(self, app_section_name, conf_file):
-        """Modifying android:icon="@mipmap/ic_launcher" to the desired icon from configuration file
+        """
+        Modifying android:icon="@mipmap/ic_launcher" to the desired icon from configuration file
+
         :param conf_file: The file contains all clones data that we want to modify (package, icon, app_name)
         :param app_section_name: Each directory has a different section name to use for each clone
         """
@@ -139,8 +160,11 @@ class RenamingProcess(object):
         return self.icon
 
     def modification_strings_xml_file(self, app_section_name, conf_file):
-        """Modifying 'Strings.xml' file for the app_name attribute
+        """
+        Modifying 'Strings.xml' file for the app_name attribute
 
+        :param conf_file: The file contains all clones data that we want to modify (package, icon, app_name)
+        :param app_section_name: Each directory has a different section name to use for each clone
         :rtype: self.strings returns True or False depends upon the process
         """
         # Instantiate object of the StringManipulationProcess class
