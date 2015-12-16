@@ -11,6 +11,8 @@ class StringManipulationProcess(object):
 
     def __init__(self,
                  output=None,
+                 move_dir=None,
+                 working_dir=None,
                  strings_file=None,
                  regex_string=None,
                  build_gradle=None,
@@ -24,6 +26,8 @@ class StringManipulationProcess(object):
         :rtype: self.replace_string (True, False)
         """
         self.output = output
+        self.move_dir = move_dir
+        self.working_dir = working_dir
         self.strings_file = strings_file
         self.regex_string = regex_string
         self.build_gradle = build_gradle
@@ -33,16 +37,51 @@ class StringManipulationProcess(object):
         self.gradlew_std_output = gradlew_std_output
         self.android_manifest_file = android_manifest_file
 
+    def get_working_directory(self):
+        """
+        Obtain the current directory else raise error
+
+        :rtype: Raise error in case the current directory can not be retrieved
+        """
+        try:
+            self.working_dir = os.getcwd()
+        except OSError as e:
+            self.working_dir = e.self.working_dir
+            print "Error: {}" .format(self.working_dir)
+        return self.working_dir
+
+    def move_to_directory(self, path):
+        """
+        Trying to move to the specified path else raise error
+
+        :rtype: True or False based on output
+        """
+        try:
+            os.chdir(path)
+            self.move_dir = True
+        except OSError:
+            print "Could not enter: {} to build the module".format(path)
+            self.move_dir = False
+        return self.move_dir
+
     def compile_and_build_project(self, app_section):
 
-        working_directory = os.getcwd()
-        path = working_directory + "/" + app_section
-        os.chdir(path)
+        working_directory = self.get_working_directory()
 
-        gradlew_build = './gradlew build'
-        self.gradlew_std_output = self.execute_bash_cmd(gradlew_build)
-        print "Build: {}" .format(self.gradlew_std_output)
-        exit(1)
+        # Change directory to build the cloned app
+        path = working_directory + "/" + app_section
+
+        self.move_to_directory(path)
+
+        build_std_out = self.execute_bash_cmd('./gradlew build')
+
+        if "BUILD SUCCESSFUL" not in build_std_out:
+            self.gradlew_std_output = False
+        else:
+            self.gradlew_std_output = True
+
+        self.move_to_directory(working_directory)
+
         return self.gradlew_std_output
 
     def get_list_of_package_name_files(self, app_section):
@@ -53,7 +92,7 @@ class StringManipulationProcess(object):
         :param app_section: Each directory has a different section name to use for each clone
         """
 
-        working_directory = os.getcwd()
+        working_directory = self.get_working_directory()
         dir_package_name = working_directory + "/" + app_section + "/app/src/"
         cmd = 'grep -rl "package=*" ' + dir_package_name
         self.list_package_name = self.execute_bash_cmd(cmd)
@@ -69,7 +108,7 @@ class StringManipulationProcess(object):
         :type app_section: Each directory has a different section name to use for each clone
         """
 
-        working_directory = os.getcwd()
+        working_directory = self.get_working_directory()
         self.android_manifest_file = working_directory + "/" + app_section + "/app/src/main/AndroidManifest.xml"
         return self.android_manifest_file
 
@@ -95,7 +134,7 @@ class StringManipulationProcess(object):
         :type app_section: Each directory has a different section name to use for each clone
         """
 
-        working_directory = os.getcwd()
+        working_directory = self.get_working_directory()
         self.strings_file = working_directory + "/" + app_section + "/app/src/main/res/values/strings.xml"
         return self.strings_file
 
@@ -107,7 +146,7 @@ class StringManipulationProcess(object):
         :rtype: Path to the specified builde.gradle file based on section of configuration.ini file
         """
 
-        working_directory = os.getcwd()
+        working_directory = self.get_working_directory()
         self.build_gradle = working_directory + "/" + app_section + "/app/build.gradle"
         return self.build_gradle
 

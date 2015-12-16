@@ -44,14 +44,14 @@ class RenamingProcess(object):
         return_android_icon = self.modification_android_icon(app_section_name, conf_file)
         return_strings_xml = self.modification_strings_xml_file(app_section_name, conf_file)
 
-        # ToDo: After completing all the processes initialize "./gradlew build" and capture output as a self.output
-
         gradlew_build_obj = stringManipulation.StringManipulationProcess()
         gradlew_build_std_output = gradlew_build_obj.compile_and_build_project(app_section_name)
 
-        pprint.pprint(gradlew_build_std_output)
+        if return_package_name is True and \
+            return_android_icon is True and \
+            return_strings_xml is True:
+                #gradlew_build_std_output is True:
 
-        if return_package_name is True and return_android_icon is True and return_strings_xml is True:
             self.output = True
         else:
             self.output = False
