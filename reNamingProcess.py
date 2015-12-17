@@ -6,10 +6,14 @@ import stringManipulation
 
 
 class RenamingProcess(object):
-    """This class is used to modify the package name in the AndroidManifest.xml file,
-        also the application name. e.g. application android:icon="@drawable/icon" android:label="new name"
-        also modifying the app_name in strings.xml file e.g. <string name="app_name">New Name</string>
-        also modifying all remaining instances of main package."""
+    """
+    This class is used to modify the package name in the AndroidManifest.xml file,
+    also the application name. e.g. application android:icon="@drawable/icon" android:label="new name"
+    also modifying the app_name in strings.xml file e.g. <string name="app_name">New Name</string>
+    also modifying all remaining instances of main package.
+
+    :rtype: object.output returns True or False
+    """
 
     def __init__(self,
                  icon=None,
@@ -28,10 +32,6 @@ class RenamingProcess(object):
         self.file_data = file_data
         self.android_manifest_data = android_manifest_data
 
-        """
-        :rtype: object.output String with True or False
-        """
-
     def modification_process(self, app_section_name, conf_file):
         """
         Modify AndroidManifest.xml, build.gradle and Strings.xml file(s)
@@ -47,10 +47,8 @@ class RenamingProcess(object):
         gradlew_build_obj = stringManipulation.StringManipulationProcess()
         gradlew_build_std_output = gradlew_build_obj.compile_and_build_project(app_section_name)
 
-        if return_package_name is True and \
-            return_android_icon is True and \
-            return_strings_xml is True:
-                #gradlew_build_std_output is True:
+        if return_package_name is True and return_android_icon is True and \
+                return_strings_xml is True and gradlew_build_std_output is True:
 
             self.output = True
         else:
@@ -97,6 +95,15 @@ class RenamingProcess(object):
         list_package_name_files_obj = stringManipulation.StringManipulationProcess()
         list_package_name_files = list_package_name_files_obj.get_list_of_package_name_files(app_section_name)
 
+        # Check if this app contains the gcm file 'google-services.json'
+        path = "/" + app_section_name + "/app/"
+        # Instantiate object of the StringManipulationProcess class
+        find_file_obj = stringManipulation.StringManipulationProcess()
+        find_file_return_value = find_file_obj.find_file('google-services.json', path)
+
+        if find_file_return_value:
+            list_package_name_files.append(find_file_return_value)
+
         # Instantiate object of the StringManipulationProcess class
         replace_package_name_obj = stringManipulation.StringManipulationProcess()
         # Replace old package name in all file(s) for all occurrences
@@ -117,7 +124,6 @@ class RenamingProcess(object):
 
         :param new_package_name: Name retrieved from configurationFile.ini based on section
         :param old_package_name: Name retrieved initially from AndroidManifest.xml file
-        :param conf_file: configuration.ini file, retrieve data based on key
         :param app_section_name: Each directory has a different section name to use for each clone
         """
 

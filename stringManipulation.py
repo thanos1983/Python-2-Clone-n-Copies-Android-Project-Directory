@@ -13,6 +13,7 @@ class StringManipulationProcess(object):
                  output=None,
                  move_dir=None,
                  working_dir=None,
+                 file_output=None,
                  strings_file=None,
                  regex_string=None,
                  build_gradle=None,
@@ -28,6 +29,7 @@ class StringManipulationProcess(object):
         self.output = output
         self.move_dir = move_dir
         self.working_dir = working_dir
+        self.file_output = file_output
         self.strings_file = strings_file
         self.regex_string = regex_string
         self.build_gradle = build_gradle
@@ -36,6 +38,17 @@ class StringManipulationProcess(object):
         self.list_package_name = list_package_name
         self.gradlew_std_output = gradlew_std_output
         self.android_manifest_file = android_manifest_file
+
+    def find_file(self, file_name, path):
+        working_directory = self.get_working_directory()
+        path = working_directory + path
+        for root, dirs, files in os.walk(path):
+            if file_name in files:
+                self.file_output = os.path.join(root, file_name)
+                return self.file_output
+            else:
+                self.file_output = False
+                return self.file_output
 
     def get_working_directory(self):
         """
@@ -47,7 +60,7 @@ class StringManipulationProcess(object):
             self.working_dir = os.getcwd()
         except OSError as e:
             self.working_dir = e.self.working_dir
-            print "Error: {}" .format(self.working_dir)
+            print "Error: {}".format(self.working_dir)
         return self.working_dir
 
     def move_to_directory(self, path):

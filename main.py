@@ -17,7 +17,9 @@ if __name__ == '__main__':
                                                                                         sys.argv[2])
         sys.exit(1)
 
-    """file_comp_obj = dirCompare.DirectoryComparisonProcess()  # Instantiate obj. of the DirectoryComparisonProcess class
+    """
+    # Checking the directories if they match
+    file_comp_obj = dirCompare.DirectoryComparisonProcess()  # Instantiate obj. of the DirectoryComparisonProcess class
     dir_conf = file_comp_obj.retrieve_dir_diff(sys.argv[0],
                                                '/Users/thanos/Desktop/cloneAndroidScript/dir2')"""
 
