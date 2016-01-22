@@ -31,7 +31,9 @@ class DuplicationProcess(object):
             return self.output
         # Directories are the same
         except shutil.Error as e:
-            print('Directory not copied. Error: {}' .format(e))
+            self.output = 'Error: {}' .format(e)
+            return self.output
         # Any error saying that the directory doesn't exist
         except OSError as e:
-            print('Directory not copied. Error: {}' .format(e))
+            self.output = 'Error: {}' .format(e)
+            return self.output

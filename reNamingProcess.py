@@ -68,9 +68,8 @@ class RenamingProcess(object):
         # Retrieve package PackageName from '*.ini' file
         key, new_package_name = conf_file[app_section_name][0]
 
-        regex_key = key + '=\"(.*?)\"'
         # Regex to modify package='com.something.something.etc'
-        key += regex_key
+        regex_key = key + '=\"(.*?)\"'
 
         # Instantiate object of the StringManipulationProcess class for file input
         regex_xml_obj = stringManipulation.StringManipulationProcess()
@@ -182,7 +181,8 @@ class RenamingProcess(object):
         key, new_label = conf_file[app_section_name][2]
 
         # Regex to replace app_name label in
-        key = '<string name=\"app_name\">.*</string>'
+        key = '<string name=\"app_name\".*</string>'
+        # key = '<string name=\"app_name\" translatable=\"false\">.*</string>'
 
         # Instantiate object of the StringManipulationProcess class
         regex_strings_obj = stringManipulation.StringManipulationProcess()

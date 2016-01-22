@@ -135,8 +135,8 @@ class StringManipulationProcess(object):
 
         try:
             self.bash_cmd_return = subprocess.check_output(cmd, shell=True)
-        except CalledProcessError as e:
-            self.bash_cmd_return = e.self.bash_cmd_return
+        except subprocess.CalledProcessError as e:
+            self.bash_cmd_return = e
         return self.bash_cmd_return
 
     def get_strings_xml(self, app_section):
@@ -171,11 +171,13 @@ class StringManipulationProcess(object):
         :param file_input: File input to use regex
         :rtype: self.regex_string returns string matched based on regex
         """
-
-        with open(file_input, "r") as fr:
-            str_data = fr.read()
-            str_line = re.findall(r'{}'.format(regex_key), str_data)
-        fr.closed
+        try:
+            with open(file_input, "r") as fr:
+                str_data = fr.read()
+                str_line = re.findall(r'{}'.format(regex_key), str_data)
+        except IOError as e:
+            print(e)
+            exit(1)
         self.regex_string = str_line[0]
         return self.regex_string
 

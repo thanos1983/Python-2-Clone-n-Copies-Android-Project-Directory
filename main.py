@@ -26,8 +26,6 @@ if __name__ == '__main__':
     conf_file_obj = configurationFileProcess.ConfigurationFileProcess()
     data_conf_file, source_file = conf_file_obj.process_conf_file(sys.argv[2])
 
-    # pprint.pprint(data_conf_file)
-
     app_names_list = data_conf_file.keys()
     number_of_clones = len(app_names_list)
 
@@ -37,7 +35,9 @@ if __name__ == '__main__':
     cloning_dictionary = {}
     for i in range(int(number_of_clones)):
         cloning_dictionary[app_names_list[i]] = cloning_obj.clone(source_file, app_names_list[i])
+        if cloning_dictionary[app_names_list[i]] != 'Success':
+            pprint.pprint(cloning_dictionary)
+            continue
         renaming = renaming_obj.modification_process(app_names_list[i], data_conf_file)
         print "Renaming process  return: {}" .format(renaming)
-
     exit(0)
